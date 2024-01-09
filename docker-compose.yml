@@ -1,0 +1,48 @@
+version: '3.3'
+
+services:
+  nginx:
+    build: 
+      context: .
+      dockerfile: docker/Nginx.Dockerfile
+    ports:
+      - 8000:80
+    volumes:
+      - ./backend/:/var/www/laravel-app
+    links:
+      - fpm    
+
+  fpm:
+    build:
+      context: .
+      dockerfile: docker/Fpm.Dockerfile
+    volumes:
+      - ./backend/:/var/www/laravel-app
+
+  node:
+    build:
+      context: .
+      dockerfile: docker/Node.Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/:/var/www/vue-app
+    links:
+      - mysql
+
+  mysql:
+    image: mysql
+    container_name: mysql
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=laravel      
+    volumes:
+      - ./database/:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    ports:
+      - 8090:8080
+  
